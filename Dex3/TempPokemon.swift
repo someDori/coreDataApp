@@ -6,9 +6,9 @@ struct TempPokemon: Codable {
     let types: [String]
     var hp = 0
     var attack = 0
-    var defence = 0
+    var defense = 0
     var specialAttack = 0
-    var specialDefence = 0
+    var specialDefense = 0
     var speed = 0
     let sprite: URL
     let shiny: URL
@@ -78,14 +78,14 @@ struct TempPokemon: Codable {
             case "attack":
                 attack = try statsDictionaryContainer
                     .decode(Int.self, forKey: .value)
-            case "defence":
-                defence = try statsDictionaryContainer
+            case "defense":
+                defense = try statsDictionaryContainer
                     .decode(Int.self, forKey: .value)
             case "special-attack":
                 specialAttack = try statsDictionaryContainer
                     .decode(Int.self, forKey: .value)
-            case "special-defence":
-                specialDefence = try statsDictionaryContainer
+            case "special-defense":
+                specialDefense = try statsDictionaryContainer
                     .decode(Int.self, forKey: .value)
             case "speed":
                 speed = try statsDictionaryContainer
