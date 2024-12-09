@@ -11,7 +11,9 @@ struct ContentView: View {
     private var pokedex: FetchedResults<Pokemon>
     
     @StateObject private var pokemonVM = PokemonViewModel(controller: FetchController())
-
+    
+    @State var searchQuery: String = ""
+    
     var body: some View {
         switch pokemonVM.status {
         case .success:
@@ -29,6 +31,14 @@ struct ContentView: View {
                         
                         Text("\(pokemon.name!.capitalized)")
                     }
+                }
+                .searchable(
+                    text: $searchQuery,
+                    placement: .automatic,
+                    prompt: "pokemon"
+                )
+                .textInputAutocapitalization(.never)
+                .onChange(of: searchQuery) {
                 }
                 .navigationTitle("Pokedex")
                 .navigationDestination(for: Pokemon.self) { pokemon in
