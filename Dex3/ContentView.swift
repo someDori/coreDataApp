@@ -2,30 +2,37 @@ import CoreData
 import SwiftUI
 
 struct ContentView: View {
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Pokemon.id, ascending: true)],
-        animation: .default
-    )
-    private var pokedex: FetchedResults<Pokemon>
+    @Environment(\.managedObjectContext) private var viewContext
+    @State var searchQuery: String = ""
+    @State var filterByFavorites = false
     
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Pokemon.id, ascending: true)],
-        predicate: NSPredicate(format: "favorite = %d", true),
-        animation: .default
-    )
-    private var favorites: FetchedResults<Pokemon>
+    var filteredPokemons: [Pokemon] {
+        let predicate: NSPredicate
+        
+        if filterByFavorites && !searchQuery.isEmpty {
+            predicate = NSPredicate(format: "favorite = %d AND name CONTAINS[cd] %@", true, searchQuery)
+        } else if filterByFavorites {
+            predicate = NSPredicate(format: "favorite = %d", true)
+        } else if searchQuery.isEmpty {
+            predicate = NSPredicate(value: true)
+        } else {
+            predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchQuery)
+        }
+        
+        let request = NSFetchRequest<Pokemon>(entityName: "Pokemon")
+        request.predicate = predicate
+        request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+        return try! viewContext.fetch(request)
+    }
     
     @StateObject private var pokemonVM = PokemonViewModel(controller: FetchController())
     
-    @State var searchQuery: String = ""
-    
-    @State var filterByFavorites = false
     
     var body: some View {
         switch pokemonVM.status {
         case .success:
             NavigationStack {
-                List(filterByFavorites ? favorites : pokedex) { pokemon in
+                List(filteredPokemons) { pokemon in
                     NavigationLink(value: pokemon) {
                         AsyncImage(url: pokemon.sprite) { image in
                             image
