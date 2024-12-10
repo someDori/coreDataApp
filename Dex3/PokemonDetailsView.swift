@@ -1,14 +1,8 @@
-//
-//  PokemonDetailsView.swift
-//  Dex3
-//
-//  Created by Demetre Panjakidze on 08.12.24.
-//
-
-import SwiftUI
 import CoreData
+import SwiftUI
 
 struct PokemonDetailsView: View {
+    @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var pokemon: Pokemon
     @State private var showShiny = false
     
@@ -28,7 +22,6 @@ struct PokemonDetailsView: View {
                 } placeholder: {
                     ProgressView()
                 }
-                
             }
             HStack {
                 ForEach(pokemon.types!, id: \.self) { type in
@@ -40,7 +33,27 @@ struct PokemonDetailsView: View {
                         .background(Color(type.capitalized))
                         .cornerRadius(50)
                 }
+                
                 Spacer()
+                
+                Button {
+                    withAnimation {
+                        pokemon.favorite.toggle()
+                        
+                        do {
+                            try viewContext.save()
+                        } catch {
+                            let nsError = error as NSError
+                            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                        }
+                    }
+                } label: {
+                    Image(
+                        systemName: pokemon.favorite ? "star.fill" : "star"
+                    )
+                    .font(.title2)
+                    .foregroundStyle(.yellow)
+                }
             }
             .padding()
             
